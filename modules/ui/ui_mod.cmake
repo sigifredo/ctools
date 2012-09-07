@@ -7,10 +7,12 @@ ${UI_DIR}/include/UIGlobal.hpp
 
 set( UI_MOC_HDRS
 ${UI_DIR}/include/UIMainWindow.hpp
+${UI_DIR}/include/UITerminalWidget.hpp
 )
 
 set( UI_SRCS
 ${UI_DIR}/src/UIMainWindow.cpp
+${UI_DIR}/src/UITerminalWidget.cpp
 )
 
 qt4_wrap_cpp( UI_MOC_SRCS ${UI_MOC_HDRS} )
@@ -21,4 +23,7 @@ ${UI_MOC_SRCS}
 ${UI_SRCS}
 )
 
+_add_executable( cterminal ${UI_DIR}/src/term.cpp )
+
 target_link_libraries( ct_ui ${DEPS_LIBRARIES} )
+target_link_libraries( cterminal ct_ui ${DEPS_LIBRARIES} )

@@ -12,5 +12,6 @@ foreach(it ${DIVS})
     endforeach(jt)
 endforeach(it)
 
-include(CPack)
+# add_executable( prueba prueba.cpp )
 
+include(CPack)
