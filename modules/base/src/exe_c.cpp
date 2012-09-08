@@ -7,10 +7,17 @@ int main()
 {
     base::Process p;
     p.setProcess("cmd");
-    std::cout << __LINE__ << ": " << p.stdOut() << "||||||";
-    // p.stdIn("dir");
-    std::cout << __LINE__ << ": " << p.stdOut() << "||||||";
 
+    while(true)
+    {
+        std::string msg;
+        std::cin >> msg;
+
+        if(msg == "exit")
+            break;
+        else
+            p.stdIn(msg);
+    }
 
 /*
     SECURITY_ATTRIBUTES saAttr;

@@ -2,13 +2,21 @@
 #include <Thread.hpp>
 
 #include <cstdio>
+#include <utility>
+
+#define BUF_SIZE	4096
 
 using namespace base;
 
-Thread::Thread(DWORD WINAPI (*pthreadFunction)(void*), void * pfunctionParameter)
+Thread::Thread(HANDLE * hOUT)
 {
-    _pthreadFunction = pthreadFunction;
+    _hOUT[0] = hOUT[0];
+    _hOUT[1] = hOUT[1];
+
+    _threadHandler = NULL;
     _eStatus = Stopped;
+
+    start();
 }
 
 Thread::~Thread()
@@ -21,7 +29,7 @@ bool Thread::start()
 {
     if(_eStatus == Stopped)
     {
-        _threadHandler = CreateThread(0, 0, _pthreadFunction, (void *)_pfunctionParameter, 0, 0);
+        _threadHandler = CreateThread(0, 0, checkStdOut, (void *)this, 0, 0);
         if(_threadHandler == NULL)
         {
             perror("Can't start the thread.");
@@ -40,7 +48,25 @@ bool Thread::stop()
     {
         CloseHandle(_threadHandler);
         _eStatus = Stopped;
+        _threadHandler = NULL;
     }
     else
         perror("Can't stop the thread because it is not running.");
+}
+
+DWORD WINAPI Thread::checkStdOut(void * pthread)
+{
+    Thread * pThread = (Thread *)pthread;
+    CHAR szBuffer[BUF_SIZE];
+    memset(szBuffer, '\0', BUF_SIZE);
+    DWORD dwRead; 
+
+    while(pThread->_eStatus == Running)
+    {
+        ReadFile( pThread->_hOUT[0], szBuffer, BUF_SIZE, &dwRead, NULL);
+        printf("%s", szBuffer);
+        memset(szBuffer, '\0', dwRead);
+    }
+
+    return 0;
 }

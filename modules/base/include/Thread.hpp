@@ -12,7 +12,7 @@ enum Status { Running, Stopped };
 class Thread
 {
 public:
-    Thread(DWORD WINAPI (*pthreadFunction)(void*), void * pfunctionParameter);
+    Thread(HANDLE * hOUT);
     ~Thread();
 
     bool start();
@@ -21,10 +21,12 @@ public:
     Status status() const;
 
 protected:
-    DWORD WINAPI (*_pthreadFunction)(void*);
-    void * _pfunctionParameter;
     HANDLE _threadHandler;
     Status _eStatus;
+    HANDLE _hOUT[2];
+
+    static DWORD WINAPI checkStdOut(void * pThread);
+
 };
 
 inline Status Thread::status() const

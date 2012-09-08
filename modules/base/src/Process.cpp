@@ -18,12 +18,17 @@ Process::Process()
 
     SetHandleInformation(_hOUT[0], HANDLE_FLAG_INHERIT, 0);
     SetHandleInformation(_hIN[1], HANDLE_FLAG_INHERIT, 0);
+
+    _bProcessRunning = true;
+    _pStdOutThread = NULL;
 }
 
 Process::~Process()
 {
     CloseHandle(_processInformation.hProcess);
     CloseHandle(_processInformation.hThread);
+
+    delete _pStdOutThread;
 }
 
 bool Process::setProcess(char * szProcess)
@@ -50,6 +55,8 @@ bool Process::setProcess(char * szProcess)
                   &siStartInfo,  // STARTUPINFO pointer 
                   &_processInformation
                  );  // receives PROCESS_INFORMATION 
+
+    _pStdOutThread = new Thread(_hOUT);
 }
 
 std::string Process::stdOut()
@@ -67,4 +74,3 @@ void Process::stdIn(const std::string &sMessage)
     DWORD dwWritten;
     WriteFile(_hIN[1], sMessage.c_str(), sMessage.length(), &dwWritten, NULL);
 }
-
