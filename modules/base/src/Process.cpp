@@ -39,7 +39,7 @@ bool Process::setProcess(char * szProcess)
 
     ZeroMemory( &siStartInfo, sizeof(STARTUPINFO) );
     siStartInfo.cb = sizeof(STARTUPINFO); 
-    siStartInfo.hStdError = _hOUT[1];
+    siStartInfo.hStdError = _hERR[1];
     siStartInfo.hStdOutput = _hOUT[1];
     siStartInfo.hStdInput = _hIN[0];
     siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
@@ -72,5 +72,7 @@ std::string Process::stdOut()
 void Process::stdIn(const std::string &sMessage)
 {
     DWORD dwWritten;
+
     WriteFile(_hIN[1], sMessage.c_str(), sMessage.length(), &dwWritten, NULL);
+    WriteFile(_hIN[1], "\n", 1, &dwWritten, NULL);
 }
