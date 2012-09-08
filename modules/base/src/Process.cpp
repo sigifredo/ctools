@@ -12,9 +12,12 @@ Process::Process()
     saAttr.bInheritHandle = TRUE; 
     saAttr.lpSecurityDescriptor = NULL; 
 
-    // stdout
     CreatePipe(_hOUT, (_hOUT+1), &saAttr, 0);
+    CreatePipe(_hIN, (_hIN+1), &saAttr, 0);
+    CreatePipe(_hERR, (_hERR+1), &saAttr, 0);
+
     SetHandleInformation(_hOUT[0], HANDLE_FLAG_INHERIT, 0);
+    SetHandleInformation(_hIN[1], HANDLE_FLAG_INHERIT, 0);
 }
 
 Process::~Process()
@@ -58,3 +61,10 @@ std::string Process::stdOut()
 
     return std::string(buf);
 }
+
+void Process::stdIn(const std::string &sMessage)
+{
+    DWORD dwWritten;
+    WriteFile(_hIN[1], sMessage.c_str(), sMessage.length(), &dwWritten, NULL);
+}
+

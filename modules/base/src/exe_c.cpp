@@ -7,9 +7,12 @@ int main()
 {
     base::Process p;
     p.setProcess("cmd");
-    std::cout << p.stdOut() << std::endl;
+    std::cout << __LINE__ << ": " << p.stdOut() << "||||||";
+    // p.stdIn("dir");
+    std::cout << __LINE__ << ": " << p.stdOut() << "||||||";
 
-#if 0
+
+/*
     SECURITY_ATTRIBUTES saAttr;
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES); 
     saAttr.bInheritHandle = TRUE; 
@@ -61,5 +64,5 @@ std::cout << "buf:" << buf << std::endl;
     CloseHandle(piProcInfo.hThread);
 
     std::cout << "sale" << std::endl;
-#endif
+*/
 }

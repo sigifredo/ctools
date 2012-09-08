@@ -4,6 +4,7 @@ include_directories(${BASE_DIR}/include)
 set( BASE_HDRS
 ${BASE_DIR}/include/BaseGlobal.hpp
 ${BASE_DIR}/include/Process.hpp
+${BASE_DIR}/include/Thread.hpp
 )
 
 set( BASE_MOC_HDRS
@@ -11,6 +12,7 @@ set( BASE_MOC_HDRS
 
 set( BASE_SRCS
 ${BASE_DIR}/src/Process.cpp
+${BASE_DIR}/src/Thread.cpp
 )
 
 # qt4_wrap_cpp( BASE_MOC_SRCS ${BASE_MOC_HDRS} )

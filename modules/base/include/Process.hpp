@@ -18,6 +18,7 @@ public:
     bool setProcess(char * szProcess);
 
     std::string stdOut();
+    void stdIn(const std::string &sMessage);
 
     bool isRunning();
 
