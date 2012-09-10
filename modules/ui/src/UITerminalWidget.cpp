@@ -17,7 +17,8 @@ TerminalWidget::TerminalWidget(QWidget * pParent):
     QBoxLayout * pLayout = new QBoxLayout(QBoxLayout::TopToBottom, this);
 
     _pDisplayTextEdit = new QTextEdit(this);
-    _pDisplayTextEdit->setEnabled(false);
+    _pDisplayTextEdit->setReadOnly(true);
+    _pDisplayTextEdit->setFontFamily("DejaVu Sans Mono");
     _pPromptLineEdit = new QLineEdit(this);
 
     pLayout->addWidget(_pDisplayTextEdit);
@@ -37,11 +38,11 @@ void TerminalWidget::sendMessage()
     _pPromptLineEdit->setText(QString(""));
 
     _pCMDProcess->stdIn(sMessage);
-    emit sendMessage(sMessage);
 }
 
 void TerminalWidget::printStdOut(QString sMessage)
 {
+    sMessage = sMessage.replace(QString("\r\n"), QString("\n"));
     _pDisplayTextEdit->append(sMessage);
 }
 

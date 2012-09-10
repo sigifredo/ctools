@@ -65,6 +65,8 @@ DWORD WINAPI Thread::checkStdOut(void * pthread)
     while(pThread->_eStatus == Running)
     {
         ReadFile( pThread->_hOUT[0], szBuffer, BUF_SIZE, &dwRead, NULL);
+        // for(int i = 0; i < dwRead; i++)
+        //     printf("%d - %c\n", szBuffer[i], szBuffer[i]);
         pThread->emit print(QString(szBuffer));
         memset(szBuffer, '\0', dwRead);
     }

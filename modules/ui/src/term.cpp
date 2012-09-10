@@ -10,7 +10,7 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
 
     UI::TerminalWidget term;
-    term.show();
+    term.showMaximized();
 
     return app.exec();
 }

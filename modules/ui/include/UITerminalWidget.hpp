@@ -21,9 +21,6 @@ class UI_EXPORT TerminalWidget: public QWidget
 public:
     TerminalWidget(QWidget * pParent = 0);
 
-signals:
-    void sendMessage(const QString & sMessage);
-
 public slots:
     void sendMessage();
     void printStdOut(QString sMessage);
