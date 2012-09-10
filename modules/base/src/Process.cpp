@@ -22,6 +22,7 @@ Process::Process(QObject * pParent):
 
     _bProcessRunning = true;
     _pStdOutThread = NULL;
+    _pStdErrThread = NULL;
 }
 
 Process::~Process()
@@ -29,7 +30,11 @@ Process::~Process()
     CloseHandle(_processInformation.hProcess);
     CloseHandle(_processInformation.hThread);
 
-    delete _pStdOutThread;
+    if(_pStdOutThread != NULL)
+    {
+        delete _pStdOutThread;
+        delete _pStdErrThread;
+    }
 }
 
 bool Process::setProcess(char * szProcess)
@@ -58,7 +63,9 @@ bool Process::setProcess(char * szProcess)
                  );  // receives PROCESS_INFORMATION 
 
     _pStdOutThread = new Thread(_hOUT);
+    _pStdErrThread = new Thread(_hERR);
     connect(_pStdOutThread, SIGNAL(print(QString)), this, SIGNAL(printInStdOut(QString)));
+    connect(_pStdErrThread, SIGNAL(print(QString)), this, SIGNAL(printInStdErr(QString)));
 }
 
 void Process::stdIn(const QString &sMessage)

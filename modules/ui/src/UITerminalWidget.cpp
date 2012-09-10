@@ -48,5 +48,5 @@ void TerminalWidget::printStdOut(QString sMessage)
 
 void TerminalWidget::printStdErr(QString sMessage)
 {
-    _pDisplayTextEdit->append(sMessage);
+    _pDisplayTextEdit->append("<font color=red>" + sMessage + "</font>");
 }

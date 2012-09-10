@@ -37,6 +37,7 @@ protected:
     HANDLE _hERR[2];
 
     Thread * _pStdOutThread;
+    Thread * _pStdErrThread;
     bool _bProcessRunning;
 };
 
