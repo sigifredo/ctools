@@ -8,7 +8,8 @@
 
 using namespace base;
 
-Thread::Thread(HANDLE * hOUT)
+Thread::Thread(HANDLE * hOUT, QObject * pParent):
+    QObject(pParent)
 {
     _hOUT[0] = hOUT[0];
     _hOUT[1] = hOUT[1];
@@ -64,7 +65,7 @@ DWORD WINAPI Thread::checkStdOut(void * pthread)
     while(pThread->_eStatus == Running)
     {
         ReadFile( pThread->_hOUT[0], szBuffer, BUF_SIZE, &dwRead, NULL);
-        printf("%s", szBuffer);
+        pThread->emit print(QString(szBuffer));
         memset(szBuffer, '\0', dwRead);
     }
 

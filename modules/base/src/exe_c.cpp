@@ -16,7 +16,7 @@ int main()
         if(msg == "exit")
             break;
         else
-            p.stdIn(msg);
+            p.stdIn(QString(msg.c_str()));
     }
 
 /*

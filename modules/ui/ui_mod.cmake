@@ -25,5 +25,5 @@ ${UI_SRCS}
 
 _add_executable( cterminal ${UI_DIR}/src/term.cpp )
 
-target_link_libraries( ct_ui ${DEPS_LIBRARIES} )
+target_link_libraries( ct_ui ct_base ${DEPS_LIBRARIES} )
 target_link_libraries( cterminal ct_ui ${DEPS_LIBRARIES} )

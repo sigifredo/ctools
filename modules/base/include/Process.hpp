@@ -10,20 +10,24 @@
 namespace base
 {
 
-class BASE_EXPORT Process
+class BASE_EXPORT Process: public QObject
 {
+    Q_OBJECT
 public:
-    Process();
+    Process(QObject * pParent = 0);
     ~Process();
 
     bool setProcess(char * szProcess);
 
-    std::string stdOut();
-    void stdIn(const std::string &sMessage);
+    void stdIn(const QString &sMessage);
 
     bool isRunning();
 
     static DWORD WINAPI checkStdOut(void * pRunning);
+
+signals:
+    void printInStdOut(QString sMessage);
+    void printInStdErr(QString sMessage);
 
 protected:
     PROCESS_INFORMATION _processInformation; 

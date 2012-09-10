@@ -4,6 +4,7 @@
 
 // Own
 #include <UIGlobal.hpp>
+#include <Process.hpp>
 
 // Qt
 #include <QWidget>
@@ -25,10 +26,13 @@ signals:
 
 public slots:
     void sendMessage();
+    void printStdOut(QString sMessage);
+    void printStdErr(QString sMessage);
 
 protected:
     QTextEdit * _pDisplayTextEdit;
     QLineEdit * _pPromptLineEdit;
+    base::Process * _pCMDProcess;
 };
 
 }

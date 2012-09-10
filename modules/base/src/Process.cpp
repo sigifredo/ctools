@@ -5,7 +5,8 @@
 
 using namespace base;
 
-Process::Process()
+Process::Process(QObject * pParent):
+    QObject(pParent)
 {
     SECURITY_ATTRIBUTES saAttr;
     saAttr.nLength = sizeof(SECURITY_ATTRIBUTES); 
@@ -57,22 +58,12 @@ bool Process::setProcess(char * szProcess)
                  );  // receives PROCESS_INFORMATION 
 
     _pStdOutThread = new Thread(_hOUT);
+    connect(_pStdOutThread, SIGNAL(print(QString)), this, SIGNAL(printInStdOut(QString)));
 }
 
-std::string Process::stdOut()
-{
-    CHAR buf[BUF_SIZE];
-    memset(buf, '\0', BUF_SIZE);
-    DWORD dwRead; 
-    ReadFile( _hOUT[0], buf, BUF_SIZE, &dwRead, NULL);
-
-    return std::string(buf);
-}
-
-void Process::stdIn(const std::string &sMessage)
+void Process::stdIn(const QString &sMessage)
 {
     DWORD dwWritten;
 
-    WriteFile(_hIN[1], sMessage.c_str(), sMessage.length(), &dwWritten, NULL);
-    WriteFile(_hIN[1], "\n", 1, &dwWritten, NULL);
+    WriteFile(_hIN[1], sMessage.toStdString().c_str(), sMessage.length(), &dwWritten, NULL);
 }
