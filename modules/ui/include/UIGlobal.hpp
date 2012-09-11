@@ -11,6 +11,8 @@
 // #  define debug()
 // #endif
 
+typedef unsigned int width_t;
+
 #ifdef _WIN32
 #  ifdef ct_ui_EXPORTS
 #    define	UI_EXPORT	__declspec( dllexport )
