@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     // QTextCodec::setCodecForLocale(pCodec);
 
     UI::TerminalWidget term;
-    term.showMaximized();
+    term.show();
 
     return app.exec();
 }

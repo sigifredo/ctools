@@ -11,6 +11,7 @@
 // #  define debug()
 // #endif
 
+typedef unsigned int height_t;
 typedef unsigned int width_t;
 
 #ifdef _WIN32

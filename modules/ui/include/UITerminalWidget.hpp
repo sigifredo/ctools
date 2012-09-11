@@ -9,8 +9,7 @@
 // Qt
 #include <QWidget>
 
-class QTextEdit;
-class QLineEdit;
+class QScrollBar;
 
 namespace UI
 {
@@ -19,7 +18,7 @@ class UI_EXPORT TerminalWidget: public QWidget
 {
     Q_OBJECT
 public:
-    TerminalWidget(QWidget * pParent = 0);
+    TerminalWidget(QWidget* pParent = 0);
 
 public slots:
     void sendMessage();
@@ -27,9 +26,12 @@ public slots:
     void printStdErr(QString sMessage);
 
 protected:
-    QTextEdit * _pDisplayTextEdit;
-    QLineEdit * _pPromptLineEdit;
-    base::Process * _pCMDProcess;
+    height_t _hFontHeight;
+    width_t _wFontWidth;
+
+    QScrollBar * _pScrollBar;
+
+    virtual void resizeEvent(QResizeEvent* pEvent);
 };
 
 }
