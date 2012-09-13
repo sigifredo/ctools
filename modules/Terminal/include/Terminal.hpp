@@ -1,19 +1,18 @@
 
-#ifndef XTERMINAL_H
-#define XTERMINAL_H
+#ifndef TERMINAL_HPP
+#define TERMINAL_HPP
 
 #include<QWidget>
-#include<XTerminalTypes.h>
-#include<QCompleter>
+#include<Types.hpp>
 
 class QScrollBar;
 
-class XTerminal: public QWidget
+class Terminal: public QWidget
 {
     Q_OBJECT
 public:
-    XTerminal(QWidget * parent = 0);
-    ~XTerminal(void);
+    Terminal(QWidget * parent = 0);
+    ~Terminal(void);
 
     void printStdOut(QString str);
     void setScroll(int cursor, int slines);
@@ -69,7 +68,7 @@ private:
     void init(void);
 };
 
-inline void XTerminal::setScrollBarLocation(ScrollBarLocation location)
+inline void Terminal::setScrollBarLocation(ScrollBarLocation location)
 {
     _eScrollBarLocation = location;
 }

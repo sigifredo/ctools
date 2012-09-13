@@ -1,12 +1,12 @@
 
 #include <QApplication>
-#include <XTerminal.h>
+#include <Terminal.hpp>
 
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     
-    XTerminal t;
+    Terminal t;
     t.showMaximized();
     
     return app.exec();

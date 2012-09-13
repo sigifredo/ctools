@@ -3,15 +3,15 @@ set(TERMINAL_DIR ${CMAKE_CURRENT_LIST_DIR} )
 include_directories(${TERMINAL_DIR}/include)
 
 set( TERMINAL_HDRS
-${TERMINAL_DIR}/include/XTerminalTypes.h
+${TERMINAL_DIR}/include/Types.hpp
 )
 
 set( TERMINAL_MOC_HDRS
-${TERMINAL_DIR}/include/XTerminal.h
+${TERMINAL_DIR}/include/Terminal.hpp
 )
 
 set( TERMINAL_SRCS
-${TERMINAL_DIR}/src/XTerminal.cpp
+${TERMINAL_DIR}/src/Terminal.cpp
 )
 
 qt4_wrap_cpp( TERMINAL_MOC_SRC

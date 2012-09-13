@@ -1,5 +1,5 @@
 
-#include<XTerminal.h>
+#include<Terminal.hpp>
 // Qt
 #include<QPainter>
 #include<QKeyEvent>
@@ -22,14 +22,14 @@
 #  define elif			else if
 #endif
 
-XTerminal::XTerminal(QWidget * parent):
+Terminal::Terminal(QWidget * parent):
     QWidget(parent), afterCommand(-1), prompt(""), _eScrollBarLocation(ScrollBarLeft)
 {
     init();
 }
 
 
-void XTerminal::init()
+void Terminal::init()
 {
     QFontMetrics fm(font());
     _iFontHeight = fm.height();
@@ -56,7 +56,7 @@ void XTerminal::init()
     setCursor(Qt::IBeamCursor);
 }
 
-XTerminal::~XTerminal()
+Terminal::~Terminal()
 {
     delete _pScrollBar;
     delete _pForegroundColor;
@@ -65,7 +65,7 @@ XTerminal::~XTerminal()
     delete commandsHistory;
 }
 
-void XTerminal::printStdOut(QString str)
+void Terminal::printStdOut(QString str)
 {
     if(str.trimmed() != "")
     {
@@ -88,7 +88,7 @@ void XTerminal::printStdOut(QString str)
     }
 }
 
-void XTerminal::setScroll(int cursor, int slines)
+void Terminal::setScroll(int cursor, int slines)
 {
     if(!_pScrollBar->isVisible())
         return;
@@ -101,7 +101,7 @@ void XTerminal::setScroll(int cursor, int slines)
     connect(_pScrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarPositionChanged(int)));
 }
 
-void XTerminal::termSignal()
+void Terminal::termSignal()
 {
     if(afterCommand == (commandsHistory->length()-1))
     {
@@ -116,7 +116,7 @@ void XTerminal::termSignal()
     pntCurrent.setY(pntCurrent.y() + _iFontHeight);
 }
 
-void XTerminal::drawBackground(QPainter &painter, QRect &rect)
+void Terminal::drawBackground(QPainter &painter, QRect &rect)
 {
     painter.save();
 
@@ -125,7 +125,7 @@ void XTerminal::drawBackground(QPainter &painter, QRect &rect)
     painter.restore();
 }
 
-void XTerminal::drawContents(QPainter &painter)
+void Terminal::drawContents(QPainter &painter)
 {
     QPoint pnt = pntInitial;
 
@@ -141,21 +141,21 @@ void XTerminal::drawContents(QPainter &painter)
     painter.drawText(r, prompt);
 }
 
-void XTerminal::drawCursor(QPainter &painter, QRect & rect)
+void Terminal::drawCursor(QPainter &painter, QRect & rect)
 {
 //     QRect cursorRect = rect;
 //     painter.fillRect(cursorRect, _cursorColor.isValid() ? _cursorColor : _pForegroundColor);
     painter.fillRect(rect, *_pForegroundColor);
 }
 
-void XTerminal::drawTextFragment(QPainter& painter , const QRect& rect, const QString& text)
+void Terminal::drawTextFragment(QPainter& painter , const QRect& rect, const QString& text)
 {
     painter.save();
 
     painter.restore();
 }
 
-void XTerminal::keyPressEvent(QKeyEvent* event)
+void Terminal::keyPressEvent(QKeyEvent* event)
 {
     if(event->modifiers() == Qt::ControlModifier)
     {
@@ -222,7 +222,7 @@ END_EVENT:
     updateImage();
 }
 
-void XTerminal::paintEvent(QPaintEvent * event)
+void Terminal::paintEvent(QPaintEvent * event)
 {
     QPainter painter(this);
     QFont f(FONT_FAMILY, -1/*default value*/, _iFontWidth);
@@ -243,7 +243,7 @@ void XTerminal::paintEvent(QPaintEvent * event)
     drawCursor(painter, rectCursor);
 }
 
-void XTerminal::resizeEvent(QResizeEvent*)
+void Terminal::resizeEvent(QResizeEvent*)
 {
     if(_eScrollBarLocation != NoScrollBar)
     {
@@ -259,7 +259,7 @@ void XTerminal::resizeEvent(QResizeEvent*)
     }
 }
 
-void XTerminal::updateImage()
+void Terminal::updateImage()
 {
     setScroll( linesHistory->length(), linesHistory->length()+1);
     int top = height() - ((linesHistory->length()+1)*_iFontHeight);
@@ -271,7 +271,7 @@ void XTerminal::updateImage()
     update();
 }
 
-void XTerminal::scrollBarPositionChanged(int value)
+void Terminal::scrollBarPositionChanged(int value)
 {
 //     pntCurrent.setY(pntCurrent.y()-(_iFontHeight*value));
     pntInitial.setY(-_iFontHeight*value);
