@@ -3,6 +3,7 @@ include_directories(${UI_DIR}/include)
 
 set( UI_HDRS
 ${UI_DIR}/include/UIGlobal.hpp
+${UI_DIR}/include/UITypes.hpp
 )
 
 set( UI_MOC_HDRS
