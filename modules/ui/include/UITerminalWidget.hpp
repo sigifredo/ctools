@@ -5,7 +5,6 @@
 // Own
 #include <UITypes.hpp>
 #include <UIGlobal.hpp>
-#include <Process.hpp>
 
 // Qt
 #include <QWidget>

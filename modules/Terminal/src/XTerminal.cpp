@@ -1,17 +1,3 @@
-/********************************************************************************
-*   Copyright (C) 2008 - 2011 ... by Omar Andrés Zapata Mesa (Head Developer)   *
-*   email:andresete.chaos@gmail.com                                             *
-*   Copyright (C) 2008 - 2011 ... by Sigifredo Escobar Gómez(Developer)         *
-*   email:sigifredo89@gmail.com                                                 *
-*   Orbital Mechanics Group                                                     *
-*   Aerospace Engineering                                                       *
-*   University of Texas At Austin USA                                           *
-*   Grupo de Física y Astrofísica Computacional (FACom)                         *
-*   División de Programación en Ciencias de la Computación (FACom dev )         *
-*   Universidad de Antioquia At Medellin - Colombia                             *
-*                                                                               *
-********************************************************************************/
-
 
 #include<XTerminal.h>
 // Qt
@@ -25,26 +11,19 @@
                   "abcdefgjijklmnopqrstuvwxyz" \
                   "0123456789./+@"
 
-#ifdef _WIN32
-#define FONT_FAMILY		"Courier New"
-#else
 #define FONT_FAMILY		"DejaVu Sans Mono"
-#endif
 
 
-#define INITIAL_POINT		QPoint(leftMargin, 0/*fontHeight*/)
+#define INITIAL_POINT		QPoint(_iLeftMargin, 0/*_iFontHeight*/)
 #define BACKGROUND_COLOR	0x33, 0x33, 0x33
 #define FOREGROUND_COLOR	0xff, 0xff, 0xff
 
-
-XTerminal::XTerminal(QString prompt_title, QWidget * parent):
-    QWidget(parent), afterCommand(-1), prompt(""), promptTitle(prompt_title), scrollBarLocation(ScrollBarLeft)
-{
-    init();
-}
+#ifndef elif
+#  define elif			else if
+#endif
 
 XTerminal::XTerminal(QWidget * parent):
-    QWidget(parent), afterCommand(-1), prompt(""), promptTitle("xterminal ~$"), scrollBarLocation(ScrollBarLeft)
+    QWidget(parent), afterCommand(-1), prompt(""), _eScrollBarLocation(ScrollBarLeft)
 {
     init();
 }
@@ -52,47 +31,41 @@ XTerminal::XTerminal(QWidget * parent):
 
 void XTerminal::init()
 {
-    wordlist << "alpha" << "omega" << "omicron" << "zeta";
-    completer = new QCompleter(wordlist, this);
-    completer->setCaseSensitivity(Qt::CaseInsensitive);
-    completer->setWidget(this);
-
     QFontMetrics fm(font());
-    fontHeight = fm.height();
-    fontWidth = qRound((double)fm.width(REPCHAR)/(double)strlen(REPCHAR));
+    _iFontHeight = fm.height();
+    _iFontWidth = qRound((double)fm.width(REPCHAR)/(double)strlen(REPCHAR));
 
     commandsHistory = new History;
     linesHistory = new History;
 
-    backgroundColor = new QColor(BACKGROUND_COLOR);
-    foregroundColor = new QColor(FOREGROUND_COLOR);
+    _pBackgroundColor = new QColor(BACKGROUND_COLOR);
+    _pForegroundColor = new QColor(FOREGROUND_COLOR);
 
     pntCurrent = INITIAL_POINT;
     pntInitial = INITIAL_POINT;
 
-    scrollBar = new QScrollBar(this);
-    scrollBar->setCursor( Qt::ArrowCursor );
-    scrollBarValue = 0;
-//     scrollBar->hide();
-    connect(scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarPositionChanged(int)));
+    _pScrollBar = new QScrollBar(this);
+    _pScrollBar->setCursor( Qt::ArrowCursor );
+    _pScrollBarValue = 0;
+//     _pScrollBar->hide();
+    connect(_pScrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarPositionChanged(int)));
 
-    leftMargin = scrollBar->width();
+    _iLeftMargin = _pScrollBar->width();
 
     setScroll(0, 0);
     setCursor(Qt::IBeamCursor);
-    status = waitingCommand;
 }
 
 XTerminal::~XTerminal()
 {
-    delete scrollBar;
-    delete foregroundColor;
-    delete backgroundColor;
+    delete _pScrollBar;
+    delete _pForegroundColor;
+    delete _pBackgroundColor;
     delete linesHistory;
     delete commandsHistory;
 }
 
-void XTerminal::print(QString str)
+void XTerminal::printStdOut(QString str)
 {
     if(str.trimmed() != "")
     {
@@ -110,29 +83,22 @@ void XTerminal::print(QString str)
 //                 i++;
 //             }
 //         }
-        pntCurrent.setY(pntCurrent.y() + fontHeight*lst.length());
+        pntCurrent.setY(pntCurrent.y() + _iFontHeight*lst.length());
         updateImage();
     }
 }
 
 void XTerminal::setScroll(int cursor, int slines)
 {
-    if(!scrollBar->isVisible())
+    if(!_pScrollBar->isVisible())
         return;
 
-    disconnect(scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarPositionChanged(int)));
-    scrollBar->setRange(0, slines - lines);
-    scrollBar->setSingleStep(1);
-    scrollBar->setPageStep(lines);
-    scrollBar->setValue(cursor);
-    connect(scrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarPositionChanged(int)));
-}
-
-void XTerminal::recvResponse(QString message, MsgType type)
-{
-    print(message);
-    if(type == CommandFinish || type == CommandError)
-        status = waitingCommand;
+    disconnect(_pScrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarPositionChanged(int)));
+    _pScrollBar->setRange(0, slines - lines);
+    _pScrollBar->setSingleStep(1);
+    _pScrollBar->setPageStep(lines);
+    _pScrollBar->setValue(cursor);
+    connect(_pScrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarPositionChanged(int)));
 }
 
 void XTerminal::termSignal()
@@ -147,14 +113,14 @@ void XTerminal::termSignal()
         afterCommand = commandsHistory->length()-1;
     }
     prompt = QString("");
-    pntCurrent.setY(pntCurrent.y() + fontHeight);
+    pntCurrent.setY(pntCurrent.y() + _iFontHeight);
 }
 
 void XTerminal::drawBackground(QPainter &painter, QRect &rect)
 {
     painter.save();
 
-    painter.fillRect(rect, *backgroundColor);
+    painter.fillRect(rect, *_pBackgroundColor);
 
     painter.restore();
 }
@@ -165,29 +131,21 @@ void XTerminal::drawContents(QPainter &painter)
 
     for(HistoryIterator it = linesHistory->begin(); it != linesHistory->end(); it++)
     {
-        QRect r(pnt.x(), pnt.y(), fontWidth*(*it).length(), fontHeight);
+        QRect r(pnt.x(), pnt.y(), _iFontWidth*(*it).length(), _iFontHeight);
 
         painter.drawText(r, *it);
-        pnt.setY(pnt.y() + fontHeight);
+        pnt.setY(pnt.y() + _iFontHeight);
     }
 
-    if(status == waitingCommand)
-    {
-        QString promptLine;
-        if(afterCommand == (commandsHistory->size()-1))
-            promptLine = promptTitle + " " + prompt;
-        else
-            promptLine = promptTitle + " " + commandsHistory->at(afterCommand + 1);
-        QRect r(pnt.x(), pnt.y(), fontWidth*promptLine.length(), fontHeight);
-        painter.drawText(r, promptLine);
-    }
+    QRect r(pnt.x(), pnt.y(), _iFontWidth*prompt.length(), _iFontHeight);
+    painter.drawText(r, prompt);
 }
 
 void XTerminal::drawCursor(QPainter &painter, QRect & rect)
 {
 //     QRect cursorRect = rect;
-//     painter.fillRect(cursorRect, _cursorColor.isValid() ? _cursorColor : foregroundColor);
-    painter.fillRect(rect, *foregroundColor);
+//     painter.fillRect(cursorRect, _cursorColor.isValid() ? _cursorColor : _pForegroundColor);
+    painter.fillRect(rect, *_pForegroundColor);
 }
 
 void XTerminal::drawTextFragment(QPainter& painter , const QRect& rect, const QString& text)
@@ -199,7 +157,6 @@ void XTerminal::drawTextFragment(QPainter& painter , const QRect& rect, const QS
 
 void XTerminal::keyPressEvent(QKeyEvent* event)
 {
-    QString promptLine;
     if(event->modifiers() == Qt::ControlModifier)
     {
         if(event->key() == Qt::Key_D)
@@ -214,55 +171,43 @@ void XTerminal::keyPressEvent(QKeyEvent* event)
         }
     }
     
-    else if(status == waitingResponse)
-    {
-        goto END_EVENT;
-    }
-
     if(event->key() == Qt::Key_Up)
     {
         if(afterCommand > -1)
             afterCommand--;
         goto END_EVENT;
     }
-    else if(event->key() == Qt::Key_Down)
+    elif(event->key() == Qt::Key_Down)
     {
         if(afterCommand < commandsHistory->size()-1)
             afterCommand++;
         goto END_EVENT;
     }
-    else if(event->key() == Qt::Key_Return)
+    elif(event->key() == Qt::Key_Return)
     {
-        if(completer->completionCount()>0&&completer->completionCount()<wordlist.count())
-	{
-	      prompt=completer->currentCompletion();
-	      goto END_EVENT;
-	}
-
         if(afterCommand != (commandsHistory->length()-1))
         {
             prompt = commandsHistory->at(afterCommand+1);
             afterCommand = commandsHistory->length()-1;
         }
-        linesHistory->append(promptTitle + " " + prompt.trimmed());
+        linesHistory->append(prompt.trimmed());
         QString smdCommand = prompt;
         if(prompt.trimmed() == "")
         {
-            pntCurrent.setY(pntCurrent.y() + fontHeight);
+            pntCurrent.setY(pntCurrent.y() + _iFontHeight);
         }
         else
         {
             commandsHistory->append(prompt.trimmed());
-// 	    pntInitial.setY(pntInitial.y() - fontHeight);
+// 	    pntInitial.setY(pntInitial.y() - _iFontHeight);
             afterCommand++;
             prompt = QString("");
-            pntCurrent.setY(pntCurrent.y() + fontHeight);
+            pntCurrent.setY(pntCurrent.y() + _iFontHeight);
         }
-        status = waitingResponse;
         emit sendCommand(smdCommand);
         goto END_EVENT;
     }
-    else if(event->key() == Qt::Key_Backspace)
+    elif(event->key() == Qt::Key_Backspace)
     {
         prompt = prompt.remove(prompt.size()-1, 1);
         goto END_EVENT;
@@ -273,18 +218,6 @@ void XTerminal::keyPressEvent(QKeyEvent* event)
 
 END_EVENT:
     
-    completer->setCompletionPrefix(prompt);
-    completer->popup()->keyboardSearch(prompt);
-    promptLine = promptTitle + " " + prompt;
-    completer->complete(QRect( pntCurrent.x(),pntCurrent.y(),fontWidth*promptLine.length(), fontHeight));
-    if(completer->completionCount()>0&&completer->completionCount()<wordlist.count())
-    {
-      qDebug()<<"FOUND"<<completer->completionCount();
-     completer->popup()->setVisible(true); 
-    }else{
-     completer->popup()->setVisible(false);       
-    }
-
     event->accept();
     updateImage();
 }
@@ -292,10 +225,10 @@ END_EVENT:
 void XTerminal::paintEvent(QPaintEvent * event)
 {
     QPainter painter(this);
-    QFont f(FONT_FAMILY, -1/*default value*/, fontWidth);
+    QFont f(FONT_FAMILY, -1/*default value*/, _iFontWidth);
     painter.setFont(f);
 
-    painter.setPen(*foregroundColor);
+    painter.setPen(*_pForegroundColor);
 
     QRect r = rect();
 
@@ -303,33 +236,25 @@ void XTerminal::paintEvent(QPaintEvent * event)
     drawContents(painter);
 
     QFontMetrics fm(font());
-    int width = leftMargin;
-    if(status == waitingCommand)
-    {
-        QString str;
-        if(afterCommand == (commandsHistory->size()-1))
-            str = prompt+" "+promptTitle;
-        else
-            str = commandsHistory->at(afterCommand+1) + " " + promptTitle;
-        width += fontWidth*str.length();
-    }
-    QRect rectCursor(width, pntCurrent.y(), fontWidth, fontHeight);
+    int width = _iLeftMargin;
+
+    QRect rectCursor(width, pntCurrent.y(), _iFontWidth, _iFontHeight);
 
     drawCursor(painter, rectCursor);
 }
 
 void XTerminal::resizeEvent(QResizeEvent*)
 {
-    if(scrollBarLocation != NoScrollBar)
+    if(_eScrollBarLocation != NoScrollBar)
     {
-        scrollBar->resize(scrollBar->sizeHint().width(), contentsRect().height());
-        leftMargin = scrollBar->width();
-        pntCurrent.setX(leftMargin);
-        pntInitial.setX(leftMargin);
-        lines = height()/fontHeight;
-        if(lines*fontHeight != height())
+        _pScrollBar->resize(_pScrollBar->sizeHint().width(), contentsRect().height());
+        _iLeftMargin = _pScrollBar->width();
+        pntCurrent.setX(_iLeftMargin);
+        pntInitial.setX(_iLeftMargin);
+        lines = height()/_iFontHeight;
+        if(lines*_iFontHeight != height())
         {
-            setGeometry(x(), y(), width(), lines*fontHeight);
+            setGeometry(x(), y(), width(), lines*_iFontHeight);
         }
     }
 }
@@ -337,30 +262,30 @@ void XTerminal::resizeEvent(QResizeEvent*)
 void XTerminal::updateImage()
 {
     setScroll( linesHistory->length(), linesHistory->length()+1);
-    int top = height() - ((linesHistory->length()+1)*fontHeight);
+    int top = height() - ((linesHistory->length()+1)*_iFontHeight);
     if(top < 0)
     {
         pntInitial.setY(top);
-        pntCurrent.setY(height() - fontHeight);
+        pntCurrent.setY(height() - _iFontHeight);
     }
     update();
 }
 
 void XTerminal::scrollBarPositionChanged(int value)
 {
-//     pntCurrent.setY(pntCurrent.y()-(fontHeight*value));
-    pntInitial.setY(-fontHeight*value);
+//     pntCurrent.setY(pntCurrent.y()-(_iFontHeight*value));
+    pntInitial.setY(-_iFontHeight*value);
 
 //   if ( !_screenWindow )
 //       return;
 //   OJO
-//   _screenWindow->scrollTo( _scrollBar->value() );
+//   _screenWindow->scrollTo( __pScrollBar->value() );
 
-    // if the thumb has been moved to the bottom of the _scrollBar then set
+    // if the thumb has been moved to the bottom of the __pScrollBar then set
     // the display to automatically track new output,
     // that is, scroll down automatically
     // to how new _lines as they are added
-//   const bool atEndOfOutput = (_scrollBar->value() == _scrollBar->maximum());
+//   const bool atEndOfOutput = (__pScrollBar->value() == __pScrollBar->maximum());
 //   _screenWindow->setTrackOutput( atEndOfOutput );
 
     update();

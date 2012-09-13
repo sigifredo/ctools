@@ -84,7 +84,7 @@ void TerminalWidget::drawContents(QPainter &painter)
 //        pnt.setY(pnt.y() + _hFontHeight);
 //    }
 
-QRect r(_pCurrentPoint->x(), _pCurrentPoint->y(), _wFontWidth*_sCurrentLine.length()+(_sCurrentLine.length()-1), _hFontHeight);
+QRect r(_pCurrentPoint->x(), _pCurrentPoint->y(), _wFontWidth*_sCurrentLine.length()+(_sCurrentLine.length()-2), _hFontHeight);
 painter.drawText(r, _sCurrentLine);
 }
 

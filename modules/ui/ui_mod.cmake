@@ -26,5 +26,10 @@ ${UI_SRCS}
 
 _add_executable( cterminal ${UI_DIR}/src/term.cpp )
 
-target_link_libraries( ct_ui ct_base ${DEPS_LIBRARIES} )
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    target_link_libraries( ct_ui ct_base ${DEPS_LIBRARIES} )
+else()
+    target_link_libraries( ct_ui ${DEPS_LIBRARIES} )
+endif()
+
 target_link_libraries( cterminal ct_ui ${DEPS_LIBRARIES} )
