@@ -12,17 +12,23 @@ class Terminal: public QWidget
     Q_OBJECT
 public:
     Terminal(QWidget * parent = 0);
-    ~Terminal(void);
+    ~Terminal();
 
     void printStdOut(QString str);
-    void setScroll(int cursor, int slines);
+
+    /**
+     * \brief
+     *
+     * \param iCursor
+     * \param iLines
+     *
+     */
+    void setScroll(int iCursor, int iLines);
+
     void setScrollBarLocation(ScrollBarLocation location);
 
-public slots:
-    void termSignal(void);
-
 signals:
-    void keyPressedSignal(QKeyEvent *e);
+    void keyPressedSignal(QKeyEvent * e);
     void sendCommand(QString &command);
 
 protected:
@@ -37,10 +43,9 @@ protected:
     int _pScrollBarValue;
 
     QString prompt;
-    QPoint pntCurrent;
-    QPoint pntInitial;
-    History * commandsHistory;
-    History * linesHistory;
+    QPoint * _pCurrentPoint;
+    QPoint * _pInitialPoint;
+    History * _pStdOutHistory;
 
     QColor * _pBackgroundColor;
     QColor * _pForegroundColor;
@@ -51,21 +56,21 @@ protected:
     void drawBackground(QPainter &painter, QRect &rect);
     void drawContents(QPainter &painter);
     void drawCursor(QPainter &painter, QRect & rect);
-    void drawTextFragment(QPainter& painter , const QRect& rect, const QString& text);
+    // void drawTextFragment(QPainter& painter , const QRect& rect, const QString& text);
 
     virtual void keyPressEvent(QKeyEvent* event);
     virtual void paintEvent( QPaintEvent * event);
 
     virtual void resizeEvent(QResizeEvent*);
 
-    void updateImage(void);
+    void updateImage();
 
 protected slots:
     void scrollBarPositionChanged(int value);
 
 private:
     // init grapics elements
-    void init(void);
+    void init();
 };
 
 inline void Terminal::setScrollBarLocation(ScrollBarLocation location)

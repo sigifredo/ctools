@@ -4,17 +4,16 @@
 
 #include<QList>
 
+#ifdef _WIN32
+#  define EOL		"\r\n"
+#else
+#  define EOL		"\n"
+#endif
+#define EOL_WIN		"\r\n"
+#define EOL_LINUX	"\n"
+
 typedef QList<QString> History;
-typedef QList<QString>::iterator HistoryIterator;
 
-// enum XTerminalStatus { waitingResponse, waitingCommand };
-// enum MsgType { CommandStatus, CommandFinish, CommandError };
 enum ScrollBarLocation { NoScrollBar, ScrollBarLeft, ScrollBarRight };
-
-
-class XCommand
-{
-public:
-};
 
 #endif
