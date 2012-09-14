@@ -26,17 +26,18 @@ TerminalWidget::TerminalWidget(QWidget* pParent):
     QWidget(pParent)
 {
 _pScrollBar = new QScrollBar(this);
+_pScrollBar->setVisible(false);
 
 QFontMetrics fm(font());
 _hFontHeight = fm.height();
 _wFontWidth = qRound((double)fm.width(REPCHAR)/(double)strlen(REPCHAR));
-_eScrollBarLocation = ScrollBarLeft;
+_eScrollBarLocation = NoScrollBar;
 
 _pStdOutHistory = new History();
 _pBackgroundColor = new QColor(BACKGROUND_COLOR);
 _pForegroundColor = new QColor(FOREGROUND_COLOR);
 
-_pInitialPoint = new QPoint(_pScrollBar->width(), 0);
+_pInitialPoint = new QPoint(0, 0);
 _pCurrentPoint = _pInitialPoint;
 
 setCursor(Qt::IBeamCursor);
@@ -44,6 +45,8 @@ setCursor(Qt::IBeamCursor);
 
 TerminalWidget::~TerminalWidget()
 {
+    delete _pBackgroundColor;
+    delete _pForegroundColor;
     delete _pInitialPoint;
     delete _pStdOutHistory;
 }
@@ -81,13 +84,15 @@ void TerminalWidget::drawContents(QPainter &painter)
 //        pnt.setY(pnt.y() + _hFontHeight);
 //    }
 
-QRect r(_pCurrentPoint->x(), _pCurrentPoint->y(), _wFontWidth*_sCurrentLine.length(), _hFontHeight);
+QRect r(_pCurrentPoint->x(), _pCurrentPoint->y(), _wFontWidth*_sCurrentLine.length()+(_sCurrentLine.length()-1), _hFontHeight);
 painter.drawText(r, _sCurrentLine);
 }
 
 void TerminalWidget::keyPressEvent(QKeyEvent* pEvent)
 {
 _sCurrentLine += pEvent->text();
+
+updateImage();
 }
 
 void TerminalWidget::paintEvent(QPaintEvent * pEvent)
@@ -133,4 +138,16 @@ if(_eScrollBarLocation == ScrollBarLeft)
 // 
 //     if((iLines*_hFontHeight) != height())
 //         setGeometry(x(), y(), width(), 100);
+}
+
+void TerminalWidget::updateImage()
+{
+    // setScroll( _pStdOutHistory->length(), _pStdOutHistory->length()+1);
+    // int top = height() - ((_pStdOutHistory->length()+1)*_hFontHeight);
+    // if(top < 0)
+    // {
+    //     _pInitialPoint->setY(top);
+    //     _pCurrentPoint->setY(height() - _hFontHeight);
+    // }
+    update();
 }

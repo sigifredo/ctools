@@ -32,12 +32,12 @@ protected:
     width_t _wFontWidth;
     ScrollBarLocation _eScrollBarLocation;
 
-QPoint * _pInitialPoint;
-QPoint * _pCurrentPoint;
-History * _pStdOutHistory;
+    QPoint * _pInitialPoint;
+    QPoint * _pCurrentPoint;
+    History * _pStdOutHistory;
     QColor * _pBackgroundColor;
     QColor * _pForegroundColor;
-QString _sCurrentLine;
+    QString _sCurrentLine;
 
     QScrollBar * _pScrollBar;
 
@@ -47,6 +47,8 @@ QString _sCurrentLine;
     virtual void keyPressEvent(QKeyEvent* pEvent);
     virtual void paintEvent(QPaintEvent * pEvent);
     virtual void resizeEvent(QResizeEvent* pEvent);
+
+    void updateImage();
 };
 
 }
