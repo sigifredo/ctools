@@ -3,6 +3,7 @@
 #define UI_TERMINALWIDGET_HPP
 
 #include<QWidget>
+#include<UIGlobal.hpp>
 #include<UITypes.hpp>
 
 class QScrollBar;
@@ -10,7 +11,7 @@ class QScrollBar;
 namespace UI
 {
 
-class TerminalWidget: public QWidget
+class UI_EXPORT TerminalWidget: public QWidget
 {
     Q_OBJECT
 public:
