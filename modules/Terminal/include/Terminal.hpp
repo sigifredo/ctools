@@ -28,8 +28,7 @@ public:
     void setScrollBarLocation(ScrollBarLocation location);
 
 signals:
-    void keyPressedSignal(QKeyEvent * e);
-    void sendCommand(QString &command);
+    void sendToStdIn(QString &command);
 
 protected:
     int _iFontHeight;
@@ -39,10 +38,9 @@ protected:
 
     int lines;
 
-    int afterCommand;
     int _pScrollBarValue;
 
-    QString prompt;
+    QString _sPrompt;
     QPoint * _pCurrentPoint;
     QPoint * _pInitialPoint;
     History * _pStdOutHistory;

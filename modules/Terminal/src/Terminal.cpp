@@ -22,7 +22,7 @@
 #endif
 
 Terminal::Terminal(QWidget * parent):
-    QWidget(parent), afterCommand(-1), prompt(""), _eScrollBarLocation(ScrollBarLeft)
+    QWidget(parent), _sPrompt(""), _eScrollBarLocation(ScrollBarLeft)
 {
     init();
 }
@@ -110,10 +110,10 @@ void Terminal::drawContents(QPainter &painter)
         pnt.setY(pnt.y() + _iFontHeight);
     }
 
-    QRect r(pnt.x(), pnt.y(), _iFontWidth*prompt.length(), _iFontHeight);
-    painter.drawText(r, prompt);
+    QRect r(pnt.x(), pnt.y(), _iFontWidth*_sPrompt.length(), _iFontHeight);
+    painter.drawText(r, _sPrompt);
 
-    _pCurrentPoint->setX(_iLeftMargin + _iFontWidth*prompt.length());
+    _pCurrentPoint->setX(_iLeftMargin + _iFontWidth*_sPrompt.length());
 }
 
 void Terminal::drawCursor(QPainter &painter, QRect & rect)
@@ -133,43 +133,32 @@ void Terminal::drawCursor(QPainter &painter, QRect & rect)
 
 void Terminal::keyPressEvent(QKeyEvent* event)
 {
-    if(event->modifiers() == Qt::ControlModifier)
+    if(event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_D)
     {
-        if(event->key() == Qt::Key_D)
-        {
-            event->accept();
-            exit(0);
-        }
+        event->accept();
+        exit(0);
     }
     elif(event->key() == Qt::Key_Return)
     {
-        _pStdOutHistory->append(prompt.trimmed());
-        QString smdCommand = prompt;
-        if(prompt.trimmed() == "")
-        {
-            _pCurrentPoint->setY(_pCurrentPoint->y() + _iFontHeight);
-        }
-        else
-        {
-// 	    _pInitialPoint->setY(_pInitialPoint->y() - _iFontHeight);
-            afterCommand++;
-            prompt = QString("");
-            _pCurrentPoint->setY(_pCurrentPoint->y() + _iFontHeight);
-        }
+        _sPrompt = _sPrompt.trimmed();
 
-        emit sendCommand(smdCommand);
+        _pStdOutHistory->append(_sPrompt);
+        QString sStdIn = _sPrompt;
+
+        if(_sPrompt != "")
+            _sPrompt = QString("");
+
+        _pCurrentPoint->setY(_pCurrentPoint->y() + _iFontHeight);
+
+        emit sendToStdIn(sStdIn);
     }
     elif(event->key() == Qt::Key_Backspace)
-    {
-        prompt = prompt.remove(prompt.size()-1, 1);
-    }
+        _sPrompt = _sPrompt.remove(_sPrompt.size()-1, 1);
     else
-    {
-        prompt += event->text();
-        emit keyPressedSignal(event);
-    }
+        _sPrompt += event->text();
 
     event->accept();
+
     updateImage();
 }
 
