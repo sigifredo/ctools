@@ -1,66 +1,94 @@
 
-// Own
-#include <UITerminalWidget.hpp>
-
+#include<UITerminalWidget.hpp>
 // Qt
-#include <QDebug>
-#include <QBoxLayout>
-#include <QPainter>
-#include <QScrollBar>
-#include <QKeyEvent>
+#include<QPainter>
+#include<QKeyEvent>
+#include<QScrollBar>
+#include<QAbstractItemView>
+#include<QDebug>
 
-#include <cstdio>
+#define REPCHAR   "ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
+                  "abcdefgjijklmnopqrstuvwxyz" \
+                  "0123456789./+@"
 
-#define REPCHAR		"ABCDEFGHIJKLMNOPQRSTUVWXYZ" \
-			"abcdefgjijklmnopqrstuvwxyz" \
-			"0123456789./+@"
+#define FONT_FAMILY		"DejaVu Sans Mono"
 
-#define FONT_FAMILY	"DejaVu Sans Mono"
-
+#define INITIAL_POINT		QPoint(_iLeftMargin, 0/*_iFontHeight*/)
 #define BACKGROUND_COLOR	0x33, 0x33, 0x33
 #define FOREGROUND_COLOR	0xff, 0xff, 0xff
 
+#ifndef elif
+#  define elif			else if
+#endif
+
 using namespace UI;
 
-TerminalWidget::TerminalWidget(QWidget* pParent):
-    QWidget(pParent)
+TerminalWidget::TerminalWidget(QWidget * parent):
+    QWidget(parent), _sPrompt(""), _eScrollBarLocation(ScrollBarLeft)
 {
-_pScrollBar = new QScrollBar(this);
-_pScrollBar->setVisible(false);
+    init();
+}
 
-QFontMetrics fm(font());
-_hFontHeight = fm.height();
-_wFontWidth = qRound((double)fm.width(REPCHAR)/(double)strlen(REPCHAR));
-_eScrollBarLocation = NoScrollBar;
 
-_pStdOutHistory = new History();
-_pBackgroundColor = new QColor(BACKGROUND_COLOR);
-_pForegroundColor = new QColor(FOREGROUND_COLOR);
+void TerminalWidget::init()
+{
+    QFontMetrics fm(font());
+    _iFontHeight = fm.height();
+    _iFontWidth = qRound((double)fm.width(REPCHAR)/(double)strlen(REPCHAR));
 
-_pInitialPoint = new QPoint(0, 0);
-_pCurrentPoint = _pInitialPoint;
+    _pStdOutHistory = new History;
 
-setCursor(Qt::IBeamCursor);
+    _pBackgroundColor = new QColor(BACKGROUND_COLOR);
+    _pForegroundColor = new QColor(FOREGROUND_COLOR);
+
+    _pCurrentPoint = new INITIAL_POINT;
+    _pInitialPoint = new INITIAL_POINT;
+
+    _pScrollBar = new QScrollBar(this);
+    _pScrollBar->setCursor( Qt::ArrowCursor );
+    _pScrollBarValue = 0;
+//     _pScrollBar->hide();
+    connect(_pScrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarPositionChanged(int)));
+
+    _iLeftMargin = _pScrollBar->width();
+
+    setScroll(0, 0);
+    setCursor(Qt::IBeamCursor);
 }
 
 TerminalWidget::~TerminalWidget()
 {
-    delete _pBackgroundColor;
+    delete _pScrollBar;
     delete _pForegroundColor;
-    delete _pInitialPoint;
+    delete _pBackgroundColor;
     delete _pStdOutHistory;
 }
 
-void TerminalWidget::sendMessage()
+void TerminalWidget::printStdOut(QString str)
 {
+    if(str.trimmed() != "")
+    {
+        str.remove("\x0d");
+        QStringList lst = str.split("\x0a");
+        _pStdOutHistory->append(lst);
+
+        _pCurrentPoint->setY(_pCurrentPoint->y() + _iFontHeight*lst.length());
+
+        updateImage();
+    }
 }
 
-void TerminalWidget::printStdOut(QString sMessage)
+void TerminalWidget::setScroll(int iCursor, int iLines)
 {
-}
-
-void TerminalWidget::printStdErr(QString sMessage)
-{
+    if(_pScrollBar->isVisible())
+    {
+        disconnect(_pScrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarPositionChanged(int)));
+        _pScrollBar->setRange(0, iLines - lines);
+        _pScrollBar->setSingleStep(1);
+        _pScrollBar->setPageStep(lines);
+        _pScrollBar->setValue(iCursor);
+        connect(_pScrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollBarPositionChanged(int)));
+    }
 }
 
 void TerminalWidget::drawBackground(QPainter &painter, QRect &rect)
@@ -74,31 +102,72 @@ void TerminalWidget::drawBackground(QPainter &painter, QRect &rect)
 
 void TerminalWidget::drawContents(QPainter &painter)
 {
-//    QPoint pnt = *_pInitialPoint;
-//
-//    for(History::iterator it = _pStdOutHistory->begin(); it != _pStdOutHistory->end(); it++)
-//    {
-//        QRect r(pnt.x(), pnt.y(), _wFontWidth*(*it).length(), _hFontHeight);
-//
-//        painter.drawText(r, *it);
-//        pnt.setY(pnt.y() + _hFontHeight);
-//    }
+    QPoint pnt = *_pInitialPoint;
 
-QRect r(_pCurrentPoint->x(), _pCurrentPoint->y(), _wFontWidth*_sCurrentLine.length()+(_sCurrentLine.length()-2), _hFontHeight);
-painter.drawText(r, _sCurrentLine);
+    for(History::iterator it = _pStdOutHistory->begin(); it != _pStdOutHistory->end(); it++)
+    {
+        QRect r(pnt.x(), pnt.y(), _iFontWidth*(*it).length(), _iFontHeight);
+
+        painter.drawText(r, *it);
+        pnt.setY(pnt.y() + _iFontHeight);
+    }
+
+    QRect r(pnt.x(), pnt.y(), _iFontWidth*_sPrompt.length(), _iFontHeight);
+    painter.drawText(r, _sPrompt);
+
+    _pCurrentPoint->setX(_iLeftMargin + _iFontWidth*_sPrompt.length());
 }
 
-void TerminalWidget::keyPressEvent(QKeyEvent* pEvent)
+void TerminalWidget::drawCursor(QPainter &painter, QRect & rect)
 {
-_sCurrentLine += pEvent->text();
-
-updateImage();
+//     QRect cursorRect = rect;
+//     painter.fillRect(cursorRect, _cursorColor.isValid() ? _cursorColor : _pForegroundColor);
+    painter.fillRect(rect, *_pForegroundColor);
 }
 
-void TerminalWidget::paintEvent(QPaintEvent * pEvent)
+#warning "pensado para optimizar la escritura de texto en el widget"
+// void TerminalWidget::drawTextFragment(QPainter& painter , const QRect& rect, const QString& text)
+// {
+//     painter.save();
+// 
+//     painter.restore();
+// }
+
+void TerminalWidget::keyPressEvent(QKeyEvent* event)
+{
+    if(event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_D)
+    {
+        event->accept();
+        exit(0);
+    }
+    elif(event->key() == Qt::Key_Return)
+    {
+        _sPrompt = _sPrompt.trimmed();
+
+        _pStdOutHistory->append(_sPrompt);
+        QString sStdIn = _sPrompt;
+
+        if(_sPrompt != "")
+            _sPrompt = QString("");
+
+        _pCurrentPoint->setY(_pCurrentPoint->y() + _iFontHeight);
+
+        emit sendToStdIn(sStdIn);
+    }
+    elif(event->key() == Qt::Key_Backspace)
+        _sPrompt = _sPrompt.remove(_sPrompt.size()-1, 1);
+    else
+        _sPrompt += event->text();
+
+    event->accept();
+
+    updateImage();
+}
+
+void TerminalWidget::paintEvent(QPaintEvent * event)
 {
     QPainter painter(this);
-    QFont f(FONT_FAMILY, -1/*default value*/, _wFontWidth);
+    QFont f(FONT_FAMILY, -1/*default value*/, _iFontWidth);
     painter.setFont(f);
 
     painter.setPen(*_pForegroundColor);
@@ -108,46 +177,58 @@ void TerminalWidget::paintEvent(QPaintEvent * pEvent)
     drawBackground(painter, r);
     drawContents(painter);
 
-    // QFontMetrics fm(font());
-    // int width = leftMargin;
-    // if(status == waitingCommand)
-    // {
-    //     QString str;
-    //     if(afterCommand == (commandsHistory->size()-1))
-    //         str = prompt+" "+promptTitle;
-    //     else
-    //         str = commandsHistory->at(afterCommand+1) + " " + promptTitle;
-    //     width += _wFontWidth*str.length();
-    // }
-    // QRect rectCursor(width, pntCurrent.y(), _wFontWidth, _hFontHeight);
+    QFontMetrics fm(font());
+    int width = _iLeftMargin;
 
-    // drawCursor(painter, rectCursor);
+    QRect rectCursor(_pCurrentPoint->x(), _pCurrentPoint->y(), _iFontWidth, _iFontHeight);
+
+    drawCursor(painter, rectCursor);
 }
 
-void TerminalWidget::resizeEvent(QResizeEvent* pEvent)
+void TerminalWidget::resizeEvent(QResizeEvent*)
 {
-    QWidget::resizeEvent(pEvent);
-
-if(_eScrollBarLocation == ScrollBarLeft)
-    _pInitialPoint->setX(_pScrollBar->sizeHint().width());
-
-    _pScrollBar->resize(_pScrollBar->sizeHint().width(), contentsRect().height());
-
-// 
-//     int iLines = height() / _hFontHeight;
-// 
-//     if((iLines*_hFontHeight) != height())
-//         setGeometry(x(), y(), width(), 100);
+    if(_eScrollBarLocation != NoScrollBar)
+    {
+        _pScrollBar->resize(_pScrollBar->sizeHint().width(), contentsRect().height());
+        _iLeftMargin = _pScrollBar->width();
+        _pCurrentPoint->setX(_iLeftMargin);
+        _pInitialPoint->setX(_iLeftMargin);
+        lines = height()/_iFontHeight;
+        if(lines*_iFontHeight != height())
+        {
+            setGeometry(x(), y(), width(), lines*_iFontHeight);
+        }
+    }
 }
 
 void TerminalWidget::updateImage()
 {
-    // setScroll( _pStdOutHistory->length(), _pStdOutHistory->length()+1);
-    // int top = height() - ((_pStdOutHistory->length()+1)*_hFontHeight);
-    // if(top < 0)
-    // {
-    //     _pInitialPoint->setY(top);
-    //     _pCurrentPoint->setY(height() - _hFontHeight);
-    // }
+    setScroll( _pStdOutHistory->length(), _pStdOutHistory->length()+1);
+    int top = height() - ((_pStdOutHistory->length()+1)*_iFontHeight);
+    if(top < 0)
+    {
+        _pInitialPoint->setY(top);
+        _pCurrentPoint->setY(height() - _iFontHeight);
+    }
+    update();
+}
+
+void TerminalWidget::scrollBarPositionChanged(int value)
+{
+//     _pCurrentPoint->setY(_pCurrentPoint->y()-(_iFontHeight*value));
+    _pInitialPoint->setY(-_iFontHeight*value);
+
+//   if ( !_screenWindow )
+//       return;
+//   OJO
+//   _screenWindow->scrollTo( __pScrollBar->value() );
+
+    // if the thumb has been moved to the bottom of the __pScrollBar then set
+    // the display to automatically track new output,
+    // that is, scroll down automatically
+    // to how new _lines as they are added
+//   const bool atEndOfOutput = (__pScrollBar->value() == __pScrollBar->maximum());
+//   _screenWindow->setTrackOutput( atEndOfOutput );
+
     update();
 }

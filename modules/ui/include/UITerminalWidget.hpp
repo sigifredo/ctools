@@ -2,53 +2,82 @@
 #ifndef UI_TERMINALWIDGET_HPP
 #define UI_TERMINALWIDGET_HPP
 
-// Own
-#include <UITypes.hpp>
-#include <UIGlobal.hpp>
-
-// Qt
-#include <QWidget>
+#include<QWidget>
+#include<UITypes.hpp>
 
 class QScrollBar;
 
 namespace UI
 {
 
-class UI_EXPORT TerminalWidget: public QWidget
+class TerminalWidget: public QWidget
 {
     Q_OBJECT
 public:
-    TerminalWidget(QWidget* pParent = 0);
+    TerminalWidget(QWidget * parent = 0);
     ~TerminalWidget();
 
-public slots:
-    void sendMessage();
-    void printStdOut(QString sMessage);
-    void printStdErr(QString sMessage);
+    void printStdOut(QString str);
+
+    /**
+     * \brief
+     *
+     * \param iCursor
+     * \param iLines
+     *
+     */
+    void setScroll(int iCursor, int iLines);
+
+    void setScrollBarLocation(ScrollBarLocation location);
+
+signals:
+    void sendToStdIn(QString &command);
 
 protected:
-    height_t _hFontHeight;
-    width_t _wFontWidth;
-    ScrollBarLocation _eScrollBarLocation;
+    int _iFontHeight;
+    int _iFontWidth;
+    int _iLeftMargin;
+    int _iRightMargin;
 
-    QPoint * _pInitialPoint;
+    int lines;
+
+    int _pScrollBarValue;
+
+    QString _sPrompt;
     QPoint * _pCurrentPoint;
+    QPoint * _pInitialPoint;
     History * _pStdOutHistory;
+
     QColor * _pBackgroundColor;
     QColor * _pForegroundColor;
-    QString _sCurrentLine;
 
     QScrollBar * _pScrollBar;
+    ScrollBarLocation _eScrollBarLocation;
 
     void drawBackground(QPainter &painter, QRect &rect);
     void drawContents(QPainter &painter);
+    void drawCursor(QPainter &painter, QRect & rect);
+    // void drawTextFragment(QPainter& painter , const QRect& rect, const QString& text);
 
-    virtual void keyPressEvent(QKeyEvent* pEvent);
-    virtual void paintEvent(QPaintEvent * pEvent);
-    virtual void resizeEvent(QResizeEvent* pEvent);
+    virtual void keyPressEvent(QKeyEvent* event);
+    virtual void paintEvent( QPaintEvent * event);
+
+    virtual void resizeEvent(QResizeEvent*);
 
     void updateImage();
+
+protected slots:
+    void scrollBarPositionChanged(int value);
+
+private:
+    // init grapics elements
+    void init();
 };
+
+inline void TerminalWidget::setScrollBarLocation(ScrollBarLocation location)
+{
+    _eScrollBarLocation = location;
+}
 
 }
 
