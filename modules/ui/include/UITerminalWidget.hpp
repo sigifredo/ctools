@@ -60,15 +60,15 @@ protected:
     void drawCursor(QPainter &painter, QRect & rect);
     // void drawTextFragment(QPainter& painter , const QRect& rect, const QString& text);
 
-    virtual void keyPressEvent(QKeyEvent* event);
-    virtual void paintEvent( QPaintEvent * event);
+    virtual void keyPressEvent(QKeyEvent* pEvent);
+    virtual void paintEvent(QPaintEvent * pEvent);
 
-    virtual void resizeEvent(QResizeEvent*);
+    virtual void resizeEvent(QResizeEvent* pEvent);
 
     void updateImage();
 
 protected slots:
-    void scrollBarPositionChanged(int value);
+    void scrollBarPositionChanged(int iValue);
 
 private:
     // init grapics elements

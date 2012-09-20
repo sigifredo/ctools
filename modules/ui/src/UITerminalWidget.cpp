@@ -164,7 +164,7 @@ void TerminalWidget::keyPressEvent(QKeyEvent* event)
     updateImage();
 }
 
-void TerminalWidget::paintEvent(QPaintEvent * event)
+void TerminalWidget::paintEvent(QPaintEvent * pEvent)
 {
     QPainter painter(this);
     QFont f(FONT_FAMILY, -1/*default value*/, _iFontWidth);
@@ -185,7 +185,7 @@ void TerminalWidget::paintEvent(QPaintEvent * event)
     drawCursor(painter, rectCursor);
 }
 
-void TerminalWidget::resizeEvent(QResizeEvent*)
+void TerminalWidget::resizeEvent(QResizeEvent* pEvent)
 {
     if(_eScrollBarLocation != NoScrollBar)
     {
@@ -193,11 +193,14 @@ void TerminalWidget::resizeEvent(QResizeEvent*)
         _iLeftMargin = _pScrollBar->width();
         _pCurrentPoint->setX(_iLeftMargin);
         _pInitialPoint->setX(_iLeftMargin);
+
+#ifndef _WIN32
         lines = height()/_iFontHeight;
         if(lines*_iFontHeight != height())
         {
             setGeometry(x(), y(), width(), lines*_iFontHeight);
         }
+#endif
     }
 }
 
