@@ -18,8 +18,6 @@ public:
     TerminalWidget(QWidget * parent = 0);
     ~TerminalWidget();
 
-    void printStdOut(QString str);
-
     /**
      * \brief
      *
@@ -31,8 +29,11 @@ public:
 
     void setScrollBarLocation(ScrollBarLocation location);
 
+public slots:
+    void printStdOut(QString str);
+
 signals:
-    void sendToStdIn(QString &command);
+    void sendToStdIn(const QString &command);
 
 protected:
     int _iFontHeight;

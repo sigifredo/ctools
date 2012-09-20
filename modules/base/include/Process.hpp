@@ -19,11 +19,12 @@ public:
 
     bool setProcess(char * szProcess);
 
-    void stdIn(const QString &sMessage);
-
     bool isRunning();
 
     static DWORD WINAPI checkStdOut(void * pRunning);
+
+public slots:
+    void stdIn(const QString &sMessage);
 
 signals:
     void printInStdOut(QString sMessage);

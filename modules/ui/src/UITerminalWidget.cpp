@@ -54,6 +54,8 @@ void TerminalWidget::init()
 
     setScroll(0, 0);
     setCursor(Qt::IBeamCursor);
+
+    setFocusPolicy(Qt::StrongFocus);
 }
 
 TerminalWidget::~TerminalWidget()
