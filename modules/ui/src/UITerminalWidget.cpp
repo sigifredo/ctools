@@ -216,10 +216,10 @@ void TerminalWidget::updateImage()
     update();
 }
 
-void TerminalWidget::scrollBarPositionChanged(int value)
+void TerminalWidget::scrollBarPositionChanged(int iValue)
 {
 //     _pCurrentPoint->setY(_pCurrentPoint->y()-(_iFontHeight*value));
-    _pInitialPoint->setY(-_iFontHeight*value);
+    _pInitialPoint->setY(-_iFontHeight*iValue);
 
 //   if ( !_screenWindow )
 //       return;
