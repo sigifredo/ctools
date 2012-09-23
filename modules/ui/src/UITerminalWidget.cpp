@@ -108,13 +108,15 @@ void TerminalWidget::drawContents(QPainter &painter)
 
     for(History::iterator it = _pStdOutHistory->begin(); it != _pStdOutHistory->end(); it++)
     {
-        QRect r(pnt.x(), pnt.y(), _iFontWidth*(*it).length(), _iFontHeight);
+        // QRect r(pnt.x(), pnt.y(), _iFontWidth*(*it).length(), _iFontHeight);
+        QRect r(pnt.x(), pnt.y(), width(), _iFontHeight);
 
         painter.drawText(r, *it);
         pnt.setY(pnt.y() + _iFontHeight);
     }
 
-    QRect r(pnt.x(), pnt.y(), _iFontWidth*_sPrompt.length(), _iFontHeight);
+    // QRect r(pnt.x(), pnt.y(), _iFontWidth*_sPrompt.length(), _iFontHeight);
+    QRect r(pnt.x(), pnt.y(), width(), _iFontHeight);
     painter.drawText(r, _sPrompt);
 
     _pCurrentPoint->setX(_iLeftMargin + _iFontWidth*_sPrompt.length());
@@ -154,7 +156,7 @@ void TerminalWidget::keyPressEvent(QKeyEvent* event)
 
         _pCurrentPoint->setY(_pCurrentPoint->y() + _iFontHeight);
 
-        emit sendToStdIn(sStdIn);
+        emit sendToStdIn(sStdIn + "\n");
     }
     elif(event->key() == Qt::Key_Backspace)
         _sPrompt = _sPrompt.remove(_sPrompt.size()-1, 1);
@@ -209,12 +211,15 @@ void TerminalWidget::resizeEvent(QResizeEvent* pEvent)
 void TerminalWidget::updateImage()
 {
     setScroll( _pStdOutHistory->length(), _pStdOutHistory->length()+1);
+
     int top = height() - ((_pStdOutHistory->length()+1)*_iFontHeight);
+
     if(top < 0)
     {
         _pInitialPoint->setY(top);
         _pCurrentPoint->setY(height() - _iFontHeight);
     }
+
     update();
 }
 
