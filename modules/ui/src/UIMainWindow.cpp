@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget * pParent):
 
     connect(_pTerminalWidget, SIGNAL(sendToStdIn(const QString &)), _pProcess, SLOT(stdIn(const QString&)));
     connect(_pProcess, SIGNAL(printInStdOut(QString)), _pTerminalWidget, SLOT(printStdOut(QString)));
+    connect(_pProcess, SIGNAL(printInStdErr(QString)), _pTerminalWidget, SLOT(printStdOut(QString)));
 
     _pProcess->setProcess("cmd");
 }
