@@ -72,6 +72,25 @@ void TerminalWidget::printStdOut(QString str)
     {
         str.remove("\x0d");
         QStringList lst = str.split("\x0a");
+
+        for(QStringList::iterator it = lst.begin(); it != lst.end(); ++it)
+        {
+            int iLength = (*it).length();
+            int iWidthAllowed = width() - (_iLeftMargin+_iRightMargin);
+
+            if((iLength*(_iFontWidth+1)) > iWidthAllowed)
+            {
+                int iCharactersAllowed = iWidthAllowed / _iFontWidth;
+
+                QString s2 = (*it);
+                (*it).remove(iCharactersAllowed, iLength);
+                s2.remove(0, iCharactersAllowed);
+
+#warning "hay un error a la hora de insertar la parte faltante de la linea"
+                // lst.insert(it, s2);
+            }
+        }
+
         _pStdOutHistory->append(lst);
 
         _pCurrentPoint->setY(_pCurrentPoint->y() + _iFontHeight*lst.length());
