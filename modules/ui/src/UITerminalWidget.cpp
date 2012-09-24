@@ -106,7 +106,8 @@ void TerminalWidget::drawContents(QPainter &painter)
 {
     QPoint pnt = *_pInitialPoint;
 
-    for(History::iterator it = _pStdOutHistory->begin(); it != _pStdOutHistory->end(); it++)
+    History::iterator last;
+    for(History::iterator it = _pStdOutHistory->begin(); it != _pStdOutHistory->end(); last = it++)
     {
         int iLength = (*it).length();
         QRect r(pnt.x(), pnt.y(), _iFontWidth*iLength + iLength, _iFontHeight);
@@ -117,10 +118,17 @@ void TerminalWidget::drawContents(QPainter &painter)
     }
 
     // QRect r(pnt.x(), pnt.y(), _iFontWidth*_sPrompt.length(), _iFontHeight);
+    if(_pStdOutHistory->length() > 0)
+    {
+        pnt.setX((_iFontWidth + 1)*(*last).length() + pnt.x());
+        pnt.setY(pnt.y() - _iFontHeight);
+    }
+
     QRect r(pnt.x(), pnt.y(), width(), _iFontHeight);
     painter.drawText(r, _sPrompt);
 
-    _pCurrentPoint->setX(_iLeftMargin + _iFontWidth*_sPrompt.length());
+    _pCurrentPoint->setX(pnt.x() + (_iFontWidth+1)*_sPrompt.length());
+    _pCurrentPoint->setY(pnt.y());
 }
 
 void TerminalWidget::drawCursor(QPainter &painter, QRect & rect)
