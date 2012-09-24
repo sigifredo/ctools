@@ -108,10 +108,11 @@ void TerminalWidget::drawContents(QPainter &painter)
 
     for(History::iterator it = _pStdOutHistory->begin(); it != _pStdOutHistory->end(); it++)
     {
-        // QRect r(pnt.x(), pnt.y(), _iFontWidth*(*it).length(), _iFontHeight);
-        QRect r(pnt.x(), pnt.y(), width(), _iFontHeight);
+        int iLength = (*it).length();
+        QRect r(pnt.x(), pnt.y(), _iFontWidth*iLength + iLength, _iFontHeight);
 
         painter.drawText(r, *it);
+
         pnt.setY(pnt.y() + _iFontHeight);
     }
 
